@@ -1,7 +1,20 @@
 [package]
 name = "symplasma"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+license = "BSD-3-Clause" # https://spdx.org/licenses/
+authors = ["Elio Grieco <grieco@egx.com>"]
+description = "A protocol for distributed and secure knowledge managemnent."
+repository = "https://github.com/symplasma/symplasma"
+readme = "README.md"
+keywords = [
+    "distributed",
+    "protocol",
+    "knowledge-managemnent",
+] # free text, 5 keywords max
+categories = ["command-line-utilities"] # https://crates.io/category_slugs
+exclude = [".vscode/*", ".gitignore", ".aider.*"]
+# https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
 name = "symplasma"
