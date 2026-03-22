@@ -9,7 +9,9 @@ A Rust-based CLI app and library to handle entities and common functionality for
 - Config for this project should be stored in [The KDL Document Language](https://kdl.dev/).
 - The config files should be stored at the appropriate paths according to the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/).
 
-### Sources
+### Sources and Sinks
+
+These are the various entities that can be retrieved, created, or appended to.
 
 - Circles
 - Projects (might merge with circles)
@@ -19,10 +21,15 @@ A Rust-based CLI app and library to handle entities and common functionality for
 - Videos
 - Music
 - Audio
+- Links
+  - Link Dump Files
+  - Open tabs in browsers
+  - Bookmarks from browsers
+  - History from browsers
 
 Some notes about the sources:
 
-- For every source listed, there should be a section in the config that allows paths to be listed where all of the children of each path are an instance of the given type.
+- For every item listed, there should be a section in the config that allows paths to be listed where all of the children of each path are an instance of the given type.
 - `Circles`, `Projects`, and `Repos` refer to collections of files while the rest of the categories refer to individual files.
 
 ## CLI App
