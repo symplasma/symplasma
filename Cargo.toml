@@ -26,5 +26,5 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-directories = "5"
-kdl = "4"
+directories = "6"
+kdl = "6"
