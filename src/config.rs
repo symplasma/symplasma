@@ -1,26 +1,25 @@
 use std::path::PathBuf;
 
-use confique::Config as _;
 use serde::Deserialize;
 
 /// Represents the application configuration loaded from KDL files.
-#[derive(Debug, Clone, Deserialize, confique::Config)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Config {
-    #[config(default = [])]
+    #[serde(default)]
     pub circles_paths: Vec<PathBuf>,
-    #[config(default = [])]
+    #[serde(default)]
     pub projects_paths: Vec<PathBuf>,
-    #[config(default = [])]
+    #[serde(default)]
     pub repos_paths: Vec<PathBuf>,
-    #[config(default = [])]
+    #[serde(default)]
     pub markdown_paths: Vec<PathBuf>,
-    #[config(default = [])]
+    #[serde(default)]
     pub pictures_paths: Vec<PathBuf>,
-    #[config(default = [])]
+    #[serde(default)]
     pub videos_paths: Vec<PathBuf>,
-    #[config(default = [])]
+    #[serde(default)]
     pub music_paths: Vec<PathBuf>,
-    #[config(default = [])]
+    #[serde(default)]
     pub audio_paths: Vec<PathBuf>,
 }
 
@@ -44,14 +43,7 @@ impl Config {
 
     /// Parses a KDL configuration string into a Config struct.
     pub fn parse_kdl(content: &str) -> Result<Self, ConfigError> {
-        let doc: kdl::KdlDocument = content.parse().map_err(|e: kdl::KdlError| {
-            ConfigError::ParseError(e.to_string())
-        })?;
-
-        let value = kdl::serde::from_document::<Self>(doc)
-            .map_err(|e| ConfigError::ParseError(e.to_string()))?;
-
-        Ok(value)
+        serde_kdl2::from_str(content).map_err(|e| ConfigError::ParseError(e.to_string()))
     }
 }
 
