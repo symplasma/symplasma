@@ -59,6 +59,8 @@ impl Config {
     }
 
     /// Returns the default configuration as a KDL string.
+    // TODO add KDL template functionality to Confique
+    //      For a reference implementation, see: https://github.com/LukasKalbertodt/confique/blob/main/src/json5.rs
     pub fn default_kdl() -> String {
         r#"// Symplasma configuration file
 // Paths can use ~ for home directory
