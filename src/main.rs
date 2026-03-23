@@ -15,6 +15,9 @@ fn main() {
             ConfigCommands::Show => {
                 handle_config_show();
             }
+            ConfigCommands::CreateDefault => {
+                handle_config_create_default();
+            }
         },
         Commands::List { what } => match what {
             ListCommands::Sources => {
@@ -41,6 +44,25 @@ fn handle_config_show() {
         }
         Err(e) => {
             eprintln!("Error loading config: {}", e);
+            std::process::exit(1);
+        }
+    }
+}
+
+fn handle_config_create_default() {
+    let path = Config::config_path();
+    if path.exists() {
+        eprintln!("Config file already exists at: {}", path.display());
+        eprintln!("Remove it first if you want to create a new default config.");
+        std::process::exit(1);
+    }
+
+    match Config::write_default() {
+        Ok(()) => {
+            println!("Created default config at: {}", path.display());
+        }
+        Err(e) => {
+            eprintln!("Error creating default config: {}", e);
             std::process::exit(1);
         }
     }

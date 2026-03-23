@@ -46,6 +46,34 @@ impl Config {
     pub fn parse_kdl(content: &str) -> Result<Self, ConfigError> {
         serde_kdl2::from_str(content).map_err(|e| ConfigError::ParseError(e.to_string()))
     }
+
+    /// Writes the default configuration to the config file path.
+    /// Creates parent directories if they don't exist.
+    pub fn write_default() -> Result<(), ConfigError> {
+        let path = Self::config_path();
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent).map_err(ConfigError::IoError)?;
+        }
+        let content = Self::default_kdl();
+        std::fs::write(&path, content).map_err(ConfigError::IoError)
+    }
+
+    /// Returns the default configuration as a KDL string.
+    pub fn default_kdl() -> String {
+        r#"// Symplasma configuration file
+// Paths can use ~ for home directory
+
+circles "~/circles"
+projects "~/projects"
+repos "~/repos"
+markdown "~/notes"
+pictures "~/pictures"
+videos "~/videos"
+music "~/music"
+audio "~/audio"
+"#
+        .to_string()
+    }
 }
 
 impl Default for Config {

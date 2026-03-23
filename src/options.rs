@@ -45,6 +45,8 @@ pub(crate) enum Commands {
 pub(crate) enum ConfigCommands {
     /// Show the current configuration
     Show,
+    /// Create the default configuration file
+    CreateDefault,
 }
 
 #[derive(Subcommand)]
