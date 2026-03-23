@@ -26,6 +26,7 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-confique = "0.4.0"
+confique = { version = "0.4.0", default-features = false }
 directories = "6"
-kdl = "6"
+kdl = { version = "6", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
