@@ -1,15 +1,21 @@
 pub mod options;
 
 use clap::Parser;
+use symplasma::config::Config;
 use symplasma::sources::Source;
 use symplasma::{find, find_or_create, list_items, list_sources};
 
-use crate::options::{Cli, Commands, ListCommands};
+use crate::options::{Cli, Commands, ConfigCommands, ListCommands};
 
 fn main() {
     let cli = Cli::parse();
 
     match cli.command {
+        Commands::Config { what } => match what {
+            ConfigCommands::Show => {
+                handle_config_show();
+            }
+        },
         Commands::List { what } => match what {
             ListCommands::Sources => {
                 handle_list_sources();
@@ -23,6 +29,19 @@ fn main() {
         }
         Commands::FindOrCreate { source, file_name } => {
             handle_find_or_create(source, &file_name);
+        }
+    }
+}
+
+fn handle_config_show() {
+    match Config::load() {
+        Ok(config) => {
+            println!("Config file: {}", Config::config_path().display());
+            println!("{:#?}", config);
+        }
+        Err(e) => {
+            eprintln!("Error loading config: {}", e);
+            std::process::exit(1);
         }
     }
 }

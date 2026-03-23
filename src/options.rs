@@ -13,6 +13,11 @@ pub(crate) struct Cli {
 
 #[derive(Subcommand)]
 pub(crate) enum Commands {
+    /// Configuration management
+    Config {
+        #[command(subcommand)]
+        what: ConfigCommands,
+    },
     /// List sources or items from a source
     List {
         #[command(subcommand)]
@@ -34,6 +39,12 @@ pub(crate) enum Commands {
         /// The file name to find or create
         file_name: String,
     },
+}
+
+#[derive(Subcommand)]
+pub(crate) enum ConfigCommands {
+    /// Show the current configuration
+    Show,
 }
 
 #[derive(Subcommand)]
