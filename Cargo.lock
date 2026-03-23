@@ -343,6 +343,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde-kdl2"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b9cea21f8a61b2de91d2edc3f523b9be71e380b6596d739638d9c20b70139de"
+dependencies = [
+ "kdl",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "serde_core"
 version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -375,7 +386,8 @@ dependencies = [
  "clap",
  "confique",
  "directories",
- "kdl",
+ "serde",
+ "serde-kdl2",
 ]
 
 [[package]]
