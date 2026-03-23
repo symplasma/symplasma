@@ -51,14 +51,14 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            circles: Vec::new(),
-            projects: Vec::new(),
-            repos: Vec::new(),
-            markdown: Vec::new(),
-            pictures: Vec::new(),
-            videos: Vec::new(),
-            music: Vec::new(),
-            audio: Vec::new(),
+            circles: vec![PathBuf::from("~/circles")],
+            projects: vec![PathBuf::from("~/projects")],
+            repos: vec![PathBuf::from("~/repos")],
+            markdown: vec![PathBuf::from("~/notes")],
+            pictures: vec![PathBuf::from("~/pictures")],
+            videos: vec![PathBuf::from("~/videos")],
+            music: vec![PathBuf::from("~/music")],
+            audio: vec![PathBuf::from("~/audio")],
         }
     }
 }
@@ -93,8 +93,14 @@ mod tests {
     #[test]
     fn test_config_default() {
         let config = Config::default();
-        assert!(config.circles.is_empty());
-        assert!(config.projects.is_empty());
+        assert_eq!(config.circles, vec![PathBuf::from("~/circles")]);
+        assert_eq!(config.projects, vec![PathBuf::from("~/projects")]);
+        assert_eq!(config.repos, vec![PathBuf::from("~/repos")]);
+        assert_eq!(config.markdown, vec![PathBuf::from("~/notes")]);
+        assert_eq!(config.pictures, vec![PathBuf::from("~/pictures")]);
+        assert_eq!(config.videos, vec![PathBuf::from("~/videos")]);
+        assert_eq!(config.music, vec![PathBuf::from("~/music")]);
+        assert_eq!(config.audio, vec![PathBuf::from("~/audio")]);
     }
 
     #[test]
