@@ -25,10 +25,11 @@ pub struct Config {
 
 impl Config {
     /// Loads the configuration from the XDG config directory.
+    /// If the config file is not found, returns a default configuration.
     pub fn load() -> Result<Self, ConfigError> {
         let path = Self::config_path();
         if !path.exists() {
-            return Err(ConfigError::NotFound);
+            return Ok(Self::default());
         }
         let content = std::fs::read_to_string(&path).map_err(ConfigError::IoError)?;
         Self::parse_kdl(&content)
