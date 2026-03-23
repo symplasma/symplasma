@@ -6,21 +6,21 @@ use serde::Deserialize;
 #[derive(Debug, Clone, Deserialize)]
 pub struct Config {
     #[serde(default)]
-    pub circles_paths: Vec<PathBuf>,
+    pub circles: Vec<PathBuf>,
     #[serde(default)]
-    pub projects_paths: Vec<PathBuf>,
+    pub projects: Vec<PathBuf>,
     #[serde(default)]
-    pub repos_paths: Vec<PathBuf>,
+    pub repos: Vec<PathBuf>,
     #[serde(default)]
-    pub markdown_paths: Vec<PathBuf>,
+    pub markdown: Vec<PathBuf>,
     #[serde(default)]
-    pub pictures_paths: Vec<PathBuf>,
+    pub pictures: Vec<PathBuf>,
     #[serde(default)]
-    pub videos_paths: Vec<PathBuf>,
+    pub videos: Vec<PathBuf>,
     #[serde(default)]
-    pub music_paths: Vec<PathBuf>,
+    pub music: Vec<PathBuf>,
     #[serde(default)]
-    pub audio_paths: Vec<PathBuf>,
+    pub audio: Vec<PathBuf>,
 }
 
 impl Config {
@@ -51,14 +51,14 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            circles_paths: Vec::new(),
-            projects_paths: Vec::new(),
-            repos_paths: Vec::new(),
-            markdown_paths: Vec::new(),
-            pictures_paths: Vec::new(),
-            videos_paths: Vec::new(),
-            music_paths: Vec::new(),
-            audio_paths: Vec::new(),
+            circles: Vec::new(),
+            projects: Vec::new(),
+            repos: Vec::new(),
+            markdown: Vec::new(),
+            pictures: Vec::new(),
+            videos: Vec::new(),
+            music: Vec::new(),
+            audio: Vec::new(),
         }
     }
 }
@@ -93,8 +93,8 @@ mod tests {
     #[test]
     fn test_config_default() {
         let config = Config::default();
-        assert!(config.circles_paths.is_empty());
-        assert!(config.projects_paths.is_empty());
+        assert!(config.circles.is_empty());
+        assert!(config.projects.is_empty());
     }
 
     #[test]
@@ -106,19 +106,19 @@ mod tests {
     #[test]
     fn test_parse_kdl() {
         let kdl_content = r#"
-            circles_paths "~/circles" "/data/circles"
-            projects_paths "~/projects"
-            repos_paths "~/repos"
-            markdown_paths "~/notes"
-            pictures_paths "~/pictures"
-            videos_paths "~/videos"
-            music_paths "~/music"
-            audio_paths "~/audio"
+            circles "~/circles" "/data/circles"
+            projects "~/projects"
+            repos "~/repos"
+            markdown "~/notes"
+            pictures "~/pictures"
+            videos "~/videos"
+            music "~/music"
+            audio "~/audio"
         "#;
 
         let config = Config::parse_kdl(kdl_content).expect("Failed to parse KDL");
-        assert_eq!(config.circles_paths.len(), 2);
-        assert_eq!(config.projects_paths.len(), 1);
+        assert_eq!(config.circles.len(), 2);
+        assert_eq!(config.projects.len(), 1);
     }
 
     #[test]
