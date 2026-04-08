@@ -298,6 +298,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "mime-type"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e3e3895477670a13f7d4bd8c675538c1a45cc222161809aef077ce2b2aa4174"
+
+[[package]]
 name = "num"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -492,6 +498,7 @@ dependencies = [
  "confique",
  "directories",
  "ignore",
+ "mime-type",
  "serde",
  "serde-kdl2",
 ]

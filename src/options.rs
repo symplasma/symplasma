@@ -53,6 +53,11 @@ pub(crate) enum ConfigCommands {
 pub(crate) enum ListCommands {
     /// List all possible data sources
     Sources,
+    /// List all files from a specific source
+    Files {
+        /// The source type to list items from
+        source: Source,
+    },
     /// List all items from a specific source
     Items {
         /// The source type to list items from

@@ -1,17 +1,30 @@
+use crate::{config::Config, kind::traits::Kind};
 use std::path::{Path, PathBuf};
-
-use crate::config::Config;
 
 pub struct Markdown {
     path: PathBuf,
 }
 
 impl Markdown {
-    pub fn list_files(config: &Config) {}
-
     pub fn new(path: &Path) -> Self {
         Markdown {
             path: path.to_path_buf(),
         }
+    }
+}
+
+impl Kind for Markdown {
+    fn files(config: &Config, mime_type: &mime_type::MimeType) -> Vec<PathBuf> {
+        let mut files = Vec::default();
+
+        for path in &config.markdown {
+            files.push(path.to_path_buf());
+        }
+
+        files
+    }
+
+    fn indexable(config: &Config, mime_type: &mime_type::MimeType) -> Vec<PathBuf> {
+        todo!()
     }
 }

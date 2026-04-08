@@ -23,6 +23,9 @@ fn main() {
             ListCommands::Sources => {
                 handle_list_sources();
             }
+            ListCommands::Files { source } => {
+                handle_list_files(source);
+            }
             ListCommands::Items { source } => {
                 handle_list_items(source);
             }
@@ -72,6 +75,13 @@ fn handle_list_sources() {
     let sources = list_sources();
     for source in sources {
         println!("{}", source);
+    }
+}
+
+fn handle_list_files(source: Source) {
+    let items = list_items(source);
+    for item in items {
+        println!("{}", item.display());
     }
 }
 
