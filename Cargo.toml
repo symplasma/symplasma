@@ -30,3 +30,4 @@ confique = { version = "0.4.0", default-features = false }
 directories = "6"
 serde-kdl2 = "0"
 serde = { version = "1", features = ["derive"] }
+ignore = "0.4.25"
