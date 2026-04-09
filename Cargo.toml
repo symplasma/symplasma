@@ -32,3 +32,4 @@ serde-kdl2 = "0"
 serde = { version = "1", features = ["derive"] }
 ignore = "0.4.25"
 mime-type = "0.2.0"
+strum = { version = "0.28.0", features = ["derive", "strum_macros"] }

@@ -1,9 +1,10 @@
 pub mod options;
 
 use clap::Parser;
+use strum::IntoEnumIterator as _;
 use symplasma::config::Config;
 use symplasma::sources::Source;
-use symplasma::{find, find_or_create, list_items, list_sources};
+use symplasma::{find, find_or_create, list_items};
 
 use crate::options::{Cli, Commands, ConfigCommands, ListCommands};
 
@@ -72,8 +73,7 @@ fn handle_config_create_default() {
 }
 
 fn handle_list_sources() {
-    let sources = list_sources();
-    for source in sources {
+    for source in Source::iter() {
         println!("{}", source);
     }
 }

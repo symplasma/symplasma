@@ -5,11 +5,6 @@ pub mod sources;
 use sources::Source;
 use std::path::PathBuf;
 
-/// Returns a list of all possible data sources.
-pub fn list_sources() -> Vec<Source> {
-    todo!()
-}
-
 /// Lists all directories and files from the given source.
 pub fn list_items(source: Source) -> Vec<PathBuf> {
     todo!()
