@@ -1,9 +1,10 @@
 use std::path::PathBuf;
 
-use strum::EnumIter;
+use strum::{Display, EnumIter};
 
 /// Represents the different types of data sources.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, Display)]
+#[strum(serialize_all = "lowercase")]
 pub enum Source {
     /// Collections of files representing circles.
     Circles,
@@ -51,21 +52,6 @@ impl Source {
     }
 }
 
-impl std::fmt::Display for Source {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // AI! use the appropriate `strum` macro to print the name rather than using a match statement
-        match self {
-            Source::Circles => write!(f, "circles"),
-            Source::Projects => write!(f, "projects"),
-            Source::Repos => write!(f, "repos"),
-            Source::Markdown => write!(f, "markdown"),
-            Source::Pictures => write!(f, "pictures"),
-            Source::Videos => write!(f, "videos"),
-            Source::Music => write!(f, "music"),
-            Source::Audio => write!(f, "audio"),
-        }
-    }
-}
 
 impl std::str::FromStr for Source {
     type Err = SourceParseError;
