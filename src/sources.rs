@@ -53,6 +53,7 @@ impl Source {
 
 impl std::fmt::Display for Source {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // AI! use the appropriate `strum` macro to print the name rather than using a match statement
         match self {
             Source::Circles => write!(f, "circles"),
             Source::Projects => write!(f, "projects"),
