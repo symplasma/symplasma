@@ -1,7 +1,9 @@
 use std::path::PathBuf;
 
+use strum::EnumIter;
+
 /// Represents the different types of data sources.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
 pub enum Source {
     /// Collections of files representing circles.
     Circles,
@@ -51,7 +53,7 @@ impl Source {
 
 impl std::fmt::Display for Source {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
+        // AI! return the name of the enum
     }
 }
 
