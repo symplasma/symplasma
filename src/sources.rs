@@ -53,7 +53,16 @@ impl Source {
 
 impl std::fmt::Display for Source {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // AI! return the name of the enum
+        match self {
+            Source::Circles => write!(f, "circles"),
+            Source::Projects => write!(f, "projects"),
+            Source::Repos => write!(f, "repos"),
+            Source::Markdown => write!(f, "markdown"),
+            Source::Pictures => write!(f, "pictures"),
+            Source::Videos => write!(f, "videos"),
+            Source::Music => write!(f, "music"),
+            Source::Audio => write!(f, "audio"),
+        }
     }
 }
 
