@@ -31,11 +31,11 @@ impl Kind for Markdown {
         let mut files = Vec::new();
 
         for base_path in &config.markdown {
-            let walker = walkdir::WalkDir::new(base_path)
+            let walker = ignore::WalkBuilder::new(base_path)
                 .follow_links(true)
-                .into_iter()
+                .build()
                 .filter_map(|e| e.ok())
-                .filter(|e| e.file_type().is_file());
+                .filter(|e| e.file_type().map(|ft| ft.is_file()).unwrap_or(false));
 
             for entry in walker {
                 let path = entry.path();
