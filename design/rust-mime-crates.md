@@ -1,0 +1,16 @@
+# Rust Mime Crates
+
+- [Rust MIME Type Handling Guide. | Google AI Studio](https://aistudio.google.com/prompts/1aYM1-qbM9lCHcBpYusWqZ77ooC61tUhV)
+- [‘mime types’ search // Lib.rs](https://lib.rs/search?q=mime+types)
+- [Mime — Rust web dev library // Lib.rs](https://lib.rs/crates/mime)
+- [MimeType — Rust audio library // Lib.rs](https://lib.rs/crates/mime-type)
+- [MimeType in mime\\_type - Rust](https://docs.rs/mime-type/latest/mime_type/enum.MimeType.html)
+- [mime-db — db interface for Rust // Lib.rs](https://lib.rs/crates/mime-db)
+- [INFER — Rust filesystem library // Lib.rs](https://lib.rs/crates/infer)
+- [magika-cli — Rust application // Lib.rs](https://lib.rs/crates/magika-cli)
+- [tika-magic — Rust filesystem library // Lib.rs](https://lib.rs/crates/tika-magic)
+- [mimetype-detector — Rust parser // Lib.rs](https://lib.rs/crates/mimetype-detector)
+- [FileFormat — Rust filesystem library // Lib.rs](https://lib.rs/crates/file-format)
+- [file-identify — Rust utility // Lib.rs](https://lib.rs/crates/file-identify)
+- [MimeGuess — Rust text processing library // Lib.rs](https://lib.rs/crates/mime_guess)
+- [tree\\_magic\\_mini — Rust filesystem library // Lib.rs](https://lib.rs/crates/tree_magic_mini)

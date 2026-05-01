@@ -71,3 +71,26 @@ let example_kdl = serde_kdl2::to_string(&default_config)?;
 // or
 let example_toml = toml::to_string(&default_config)?;
 ```
+
+---
+
+- [‘confique’ search // Lib.rs](https://lib.rs/search?q=confique)
+- [Clapfig — Rust config library // Lib.rs](https://lib.rs/crates/clapfig)
+- [Confique — Rust config library // Lib.rs](https://lib.rs/crates/confique)
+- [template in confique::toml - Rust](https://docs.rs/confique/latest/confique/toml/fn.template.html)
+- [serde-kdl2 — Rust data encoding library // Lib.rs](https://lib.rs/crates/serde-kdl2)
+- [serde\\_kdl2 - Rust](https://docs.rs/serde-kdl2/latest/serde_kdl2/)
+- [Knuffel — Rust parser // Lib.rs](https://lib.rs/crates/knuffel)
+- [KFL — Rust parser // Lib.rs](https://lib.rs/crates/kfl)
+- [rinarakaki/kfl: KDL decoder/encoder and derive macros in Rust](https://github.com/rinarakaki/kfl)
+- [Knurdy — Rust parser // Lib.rs](https://lib.rs/crates/knurdy)
+- [kaydle — Rust data encoding library // Lib.rs](https://lib.rs/crates/kaydle)
+- [#kdl // Lib.rs](https://lib.rs/keywords/kdl)
+- [kdlfmt — command-line utility in Rust // Lib.rs](https://lib.rs/crates/kdlfmt)
+- [KDL — Rust data encoding library // Lib.rs](https://lib.rs/crates/kdl)
+- [knus — Rust parser // Lib.rs](https://lib.rs/crates/knus)
+- [arborium-kdl — Rust parser // Lib.rs](https://lib.rs/crates/arborium-kdl)
+- [kq — Rust utility // Lib.rs](https://lib.rs/crates/kq)
+- [serde\\_kdl — Rust data encoding library // Lib.rs](https://lib.rs/crates/serde_kdl)
+- [KDL2XML — Rust application // Lib.rs](https://lib.rs/crates/kdl2xml)
+- [Doku — Rust library // Lib.rs](https://lib.rs/crates/doku)
