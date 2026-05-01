@@ -9,7 +9,7 @@ pub trait Kind {
     /// Lists all files of interest for this kind.
     ///
     /// The list of files can be constrained by mime type.
-    fn files(config: &Config, mime_type: &MimeType) -> Vec<PathBuf>;
+    fn files(config: &Config) -> Vec<PathBuf>;
 
     // Lists all items of a given kind.
     //

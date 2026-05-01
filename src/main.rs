@@ -1,15 +1,19 @@
 pub mod options;
 
+use std::error::Error;
+
 use clap::Parser;
 use strum::IntoEnumIterator as _;
 use symplasma::config::Config;
 use symplasma::sources::Source;
-use symplasma::{find, find_or_create, list_items};
+use symplasma::{find, find_or_create, list_files, list_items};
 
 use crate::options::{Cli, Commands, ConfigCommands, ListCommands};
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
+
+    let config = Config::load()?;
 
     match cli.command {
         Commands::Config { what } => match what {
@@ -25,7 +29,7 @@ fn main() {
                 handle_list_sources();
             }
             ListCommands::Files { source } => {
-                handle_list_files(source);
+                handle_list_files(&config, source);
             }
             ListCommands::Items { source } => {
                 handle_list_items(source);
@@ -38,6 +42,8 @@ fn main() {
             handle_find_or_create(source, &file_name);
         }
     }
+
+    Ok(())
 }
 
 fn handle_config_show() {
@@ -78,8 +84,8 @@ fn handle_list_sources() {
     }
 }
 
-fn handle_list_files(source: Source) {
-    let items = list_items(source);
+fn handle_list_files(config: &Config, source: Source) {
+    let items = list_files(config, source);
     for item in items {
         println!("{}", item.display());
     }

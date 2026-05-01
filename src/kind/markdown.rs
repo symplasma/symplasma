@@ -14,7 +14,7 @@ impl Markdown {
 }
 
 impl Kind for Markdown {
-    fn files(config: &Config, mime_type: &mime_type::MimeType) -> Vec<PathBuf> {
+    fn files(config: &Config) -> Vec<PathBuf> {
         let mut files = Vec::default();
 
         for path in &config.markdown {

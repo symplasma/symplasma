@@ -21,7 +21,7 @@ pub fn list_files(config: &Config, source: Source) -> Vec<PathBuf> {
         Source::Circles => todo!(),
         Source::Projects => todo!(),
         Source::Repos => todo!(),
-        Source::Markdown => Markdown::files(config, &mime_type::MimeType::from("text/markdown; charset=utf-8")),
+        Source::Markdown => Markdown::files(config),
         Source::Pictures => todo!(),
         Source::Videos => todo!(),
         Source::Music => todo!(),
