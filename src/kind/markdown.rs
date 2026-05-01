@@ -13,6 +13,21 @@ impl Markdown {
     }
 }
 
+fn expand_tilde(path: &Path) -> PathBuf {
+    if let Some(path_str) = path.to_str() {
+        if let Some(stripped) = path_str.strip_prefix("~/") {
+            if let Some(home) = directories::UserDirs::new().map(|d| d.home_dir().to_path_buf()) {
+                return home.join(stripped);
+            }
+        } else if path_str == "~" {
+            if let Some(home) = directories::UserDirs::new().map(|d| d.home_dir().to_path_buf()) {
+                return home;
+            }
+        }
+    }
+    path.to_path_buf()
+}
+
 fn is_markdown_extension(path: &Path) -> bool {
     match path.extension().and_then(|e| e.to_str()) {
         Some(ext) => matches!(ext.to_lowercase().as_str(), "md" | "markdown"),
@@ -31,7 +46,9 @@ impl Kind for Markdown {
         let mut files = Vec::new();
 
         for base_path in &config.markdown {
-            let walker = ignore::WalkBuilder::new(base_path)
+            let expanded = expand_tilde(base_path);
+
+            let walker = ignore::WalkBuilder::new(&expanded)
                 .follow_links(true)
                 .build()
                 .filter_map(|e| e.ok())
