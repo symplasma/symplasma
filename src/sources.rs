@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
-use strum::{Display, EnumIter};
+use strum::{Display, EnumIter, EnumString};
 
 /// Represents the different types of data sources.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, Display)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, EnumString, Display)]
 #[strum(serialize_all = "lowercase")]
 pub enum Source {
     /// Collections of files representing circles.
@@ -51,29 +51,6 @@ impl Source {
         todo!()
     }
 }
-
-
-impl std::str::FromStr for Source {
-    type Err = SourceParseError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        todo!()
-    }
-}
-
-/// Error returned when parsing a source from a string fails.
-#[derive(Debug, Clone)]
-pub struct SourceParseError {
-    pub invalid_name: String,
-}
-
-impl std::fmt::Display for SourceParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
-    }
-}
-
-impl std::error::Error for SourceParseError {}
 
 #[cfg(test)]
 mod tests {
