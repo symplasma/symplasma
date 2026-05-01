@@ -21,8 +21,7 @@ pub fn list_files(config: &Config, source: Source) -> Vec<PathBuf> {
         Source::Circles => todo!(),
         Source::Projects => todo!(),
         Source::Repos => todo!(),
-        // AI! on the line below, ensure that the correct mime type is set for a Markdown document stored in UTF-8
-        Source::Markdown => Markdown::files(config, &mime_type::MimeType::Document(())),
+        Source::Markdown => Markdown::files(config, &mime_type::MimeType::from("text/markdown; charset=utf-8")),
         Source::Pictures => todo!(),
         Source::Videos => todo!(),
         Source::Music => todo!(),
