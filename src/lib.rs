@@ -5,9 +5,29 @@ pub mod sources;
 use sources::Source;
 use std::path::PathBuf;
 
+use crate::{
+    config::Config,
+    kind::{markdown::Markdown, traits::Kind},
+};
+
 /// Lists all directories and files from the given source.
 pub fn list_items(source: Source) -> Vec<PathBuf> {
     todo!()
+}
+
+/// Lists all directories and files from the given source.
+pub fn list_files(config: &Config, source: Source) -> Vec<PathBuf> {
+    match source {
+        Source::Circles => todo!(),
+        Source::Projects => todo!(),
+        Source::Repos => todo!(),
+        // AI! on the line below, ensure that the correct mime type is set for a Markdown document stored in UTF-8
+        Source::Markdown => Markdown::files(config, &mime_type::MimeType::Document(())),
+        Source::Pictures => todo!(),
+        Source::Videos => todo!(),
+        Source::Music => todo!(),
+        Source::Audio => todo!(),
+    }
 }
 
 /// Finds the path to the given file, optionally scoped to a source type.
