@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 use crate::{
     config::Config,
-    kind::{markdown::Markdown, traits::Kind},
+    kind::{markdown::Markdown, traits::Kind, web_scrap_book_archive::WebScrapBookArchive},
 };
 
 /// Lists all directories and files from the given source.
@@ -22,6 +22,7 @@ pub fn list_files(config: &Config, source: Source) -> Vec<PathBuf> {
         Source::Projects => todo!(),
         Source::Repos => todo!(),
         Source::Markdown => Markdown::files(config),
+        Source::WebScrapBookArchive => WebScrapBookArchive::files(config),
         Source::Pictures => todo!(),
         Source::Videos => todo!(),
         Source::Music => todo!(),
