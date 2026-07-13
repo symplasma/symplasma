@@ -1,5 +1,6 @@
 pub mod config;
 pub mod kind;
+pub mod model;
 pub mod sources;
 
 use sources::Source;

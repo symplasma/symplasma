@@ -1,10 +1,170 @@
-use std::path::PathBuf;
-
 use crate::kind::traits::Kind;
+use crate::model::file_path::FilePath;
+use crate::model::link::Link;
+
+use color_eyre::eyre::{self, eyre, Context, ContextCompat, Result};
+use scraper::{Html, Selector};
+use std::fmt;
+use std::path::PathBuf;
+use std::sync::{Arc, OnceLock};
+use std::{
+    fmt::Display,
+    io::{BufRead, BufReader},
+};
+use tracing::debug;
+use webpage::HTML;
 
 pub struct WebArchives {
     path: PathBuf,
 }
+
+#[derive(Debug)]
+pub struct WebArchive {
+    /// The link from which this page was archived
+    source: Link,
+    /// holds title, plain text, open graph, and various other data
+    html_info: OnceLock<webpage::HTML>,
+    // TODO: don't forget to add the creation time from "html.data-scrapbook-create"
+    // TODO augment this with a source enum
+}
+
+/// A representation of archived web pages
+///
+/// Currently, this is mostly intended to work with pages archived by [WebScrapbook](https://github.com/danny0838/webscrapbook).
+/// In the future, we may support other archive formats like [monolith](https://github.com/Y2Z/monolith) and [Web ARChive file format (WARC)](https://www.loc.gov/preservation/digital/formats/fdd/fdd000236.shtml).
+impl WebArchive {
+    pub(crate) fn new_from_pathbuf(path: PathBuf) -> Result<WebArchive> {
+        let file_path = FilePath::new(path)?;
+        Self::new(file_path.into())
+    }
+
+    /// Creates a new WebArchive
+    ///
+    /// If we can successfully read `disk_path` we return a WebArchive otherwise we return an error.
+    /// If you want to work with a page prior to it being archived on disk, use a [Link] instead.
+    ///
+    /// ## Source Link
+    ///
+    /// Tries to retrieve the link from the `data-scrapbook-source` attribute of the `html` tag. This should be added automatically by [WebScrapbook](https://github.com/danny0838/webscrapbook).
+    ///
+    /// ## Title
+    ///
+    /// We try to retrieve the title by:
+    ///
+    /// 1. Concatenating the text content of all `title` tags (some sites mistakenly use more than one).
+    /// 2. Finding the first `H1` on the page and pulling its text content.
+    pub fn new(disk_path: Arc<FilePath>) -> Result<Self> {
+        // read file from disk
+        match disk_path.open() {
+            Ok(file) => {
+                // TODO: use lol_html to remove scripts, styles, and other cruft to speed additional parsing tasks
+                // read additional data not picked up by the webpage crate
+                // e.g. the attributes added by WebScrapbook and the first H1 as title if not provided
+                let reader = BufReader::new(file);
+                let file_contents = reader
+                    .lines()
+                    .take(2)
+                    .filter_map(|l| l.ok())
+                    .collect::<Vec<String>>()
+                    .join("\n");
+                // get source uri
+                let document = Html::parse_document(&file_contents);
+                let selector =
+                    Selector::parse("html").map_err(|_| eyre!("could not parse html selector"))?;
+                let html_tag = document
+                    .select(&selector)
+                    .next()
+                    .context("could not find HTML tag")?;
+                let uri = html_tag
+                    .value()
+                    .attr("data-scrapbook-source")
+                    .context("could not get 'data-scrapbook-source' attr")?
+                    .to_string();
+                // TODO: get the archive date from "data-scrapbook-create"
+
+                Ok(WebArchive {
+                    source: Link::new(uri, None, disk_path),
+                    html_info: OnceLock::new(),
+                })
+            }
+            Err(_e) => Err(eyre!("could not read web archive")),
+        }
+    }
+
+    pub(crate) fn open(&self) -> eyre::Result<()> {
+        let disk_path = self.source.disk_path().path();
+        debug!("Opening disk path {}...", disk_path);
+        // TODO need to make this open the local file
+        open::that_detached(&disk_path)?;
+        Ok(())
+    }
+
+    /// Returns the html info of this [`WebArchive`].
+    ///
+    /// This function lazily loads information for the webpage. We're doing this because loading the whole file and parsing it is a time consuming operation.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the webpage cannot be parsed, if we cannot store the result in the `OnceLock` or if we cannot read the existing `webpage::HTML` from the `OnceLock`.
+    fn html_info(&self) -> Result<&webpage::HTML> {
+        if self.html_info.get().is_none() {
+            let html = HTML::from_file(
+                &self.source.disk_path.path(),
+                Some(self.source.raw_uri().to_owned()),
+            )
+            .context("could not collect webpage info")?;
+
+            self.html_info
+                .set(html)
+                // TODO replace the debug format specifier with a more idiomatic call
+                .map_err(|e| eyre::eyre!("{:?}", e))?;
+        }
+        self.html_info.get().ok_or(eyre!("could not get html_info"))
+    }
+
+    fn url(&self) -> &str {
+        self.source.raw_uri()
+    }
+
+    fn title(&self) -> Option<&str> {
+        // TODO: get the title from the first H1 if there is no title tag
+        //       note that this will likely cause a slowdown in parsing as we'll have to look at much more of the file
+
+        // TODO do we want to update the source title here?
+        self.source.title()
+    }
+
+    fn disk_path(&self) -> Arc<FilePath> {
+        self.source.disk_path()
+    }
+
+    fn plain_text(&self) -> Option<&str> {
+        self.html_info().map(|h| h.text_content.as_str()).ok()
+    }
+
+    /// Returns a reference to a vector of links from the file
+    ///
+    /// We are returning a result since we are parsing the file here.
+    /// The file could be fully parsed in the constructor and the error thrown there, but this allows us to defer parsing until the call to links.
+    /// Though, this may cause the file to be opened twice.
+    fn links(&mut self) -> Result<Vec<Link>> {
+        Ok(self
+            .html_info()
+            .context("could not get html_info")?
+            .links
+            .iter()
+            .map(|l| Link::new(l.url.clone(), Some(l.text.clone()), self.disk_path()))
+            .collect())
+    }
+}
+
+impl Display for WebArchive {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Delegate to the PathBuf's display implementation
+        write!(f, "{}", self.source)
+    }
+}
+
 impl Kind for WebArchives {
     fn files(config: &crate::config::Config) -> Vec<PathBuf> {
         todo!()
