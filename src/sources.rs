@@ -5,6 +5,7 @@ use strum::{Display, EnumIter, EnumString};
 use crate::config::Config;
 use crate::kind::markdown::Markdown;
 use crate::kind::traits::Kind as _;
+use crate::kind::videos::Videos;
 use crate::kind::web_archives::WebArchive;
 
 /// Represents the different types of data sources.
@@ -65,6 +66,7 @@ impl Source {
         match self {
             Source::Markdown => Markdown::files(config),
             Source::WebArchives => WebArchive::files(config),
+            Source::Videos => Videos::files(config),
             _ => Vec::new(),
         }
     }
@@ -80,7 +82,7 @@ impl Source {
             Source::Markdown => Markdown::dirs(config),
             Source::WebArchives => WebArchive::dirs(config),
             Source::Pictures => todo!(),
-            Source::Videos => todo!(),
+            Source::Videos => Videos::dirs(config),
             Source::Music => todo!(),
             Source::Audio => todo!(),
         }
