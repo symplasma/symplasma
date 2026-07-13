@@ -11,13 +11,23 @@ use symplasma::kind::web_archives::WebArchive;
 use symplasma::sources::Source;
 use symplasma::{find, find_or_create};
 use tracing::debug;
+use tracing_subscriber::EnvFilter;
 
 use crate::options::{Cli, Commands, ConfigCommands, SourceCommands};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    tracing_subscriber::fmt::init();
-
     let cli = Cli::parse();
+
+    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+        let level = match cli.verbose {
+            0 => "info",
+            1 => "debug",
+            _ => "trace",
+        };
+        EnvFilter::new(level)
+    });
+    tracing_subscriber::fmt().with_env_filter(env_filter).init();
+
     debug!(command = ?cli.command, "Parsed CLI arguments");
 
     let config = Config::load()?;

@@ -8,6 +8,11 @@ use clap::{Parser, Subcommand};
 pub(crate) struct Cli {
     #[command(subcommand)]
     pub(crate) command: Commands,
+
+    /// Increase logging verbosity (can be repeated, e.g. -vv).
+    /// Overridden by the `RUST_LOG` environment variable if set.
+    #[arg(short, long, action = clap::ArgAction::Count, global = true)]
+    pub(crate) verbose: u8,
 }
 
 #[derive(Subcommand)]
