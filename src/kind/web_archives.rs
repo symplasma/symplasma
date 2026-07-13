@@ -1,5 +1,6 @@
 use crate::config::{self, Config};
 use crate::kind::traits::Kind;
+use crate::kind::util::expand_tilde;
 use crate::model::file_path::FilePath;
 use crate::model::link::Link;
 
@@ -34,11 +35,12 @@ impl WebArchive {
         let mut items = Vec::new();
 
         for base_path in &config.web_archives {
-            let data_dir = base_path.join("data");
+            let expanded_base = expand_tilde(base_path);
+            let data_dir = expanded_base.join("data");
             let dir = if data_dir.is_dir() {
                 data_dir
             } else {
-                base_path.clone()
+                expanded_base
             };
             debug!(dir = %dir.display(), "Scanning for web archives");
 
