@@ -22,8 +22,85 @@ pub struct WebArchive {
     source: Link,
     /// holds title, plain text, open graph, and various other data
     html_info: OnceLock<webpage::HTML>,
+    /// The resolved title for this page, computed lazily alongside `html_info`
+    /// from (in order of precedence): the `data-scrapbook-title` attribute on
+    /// the `html` tag, the `<title>` tag, the first `<h1>` tag, the Open Graph
+    /// title, and the Twitter card title.
+    resolved_title: OnceLock<Option<String>>,
     // TODO: don't forget to add the creation time from "html.data-scrapbook-create"
     // TODO augment this with a source enum
+}
+
+/// Converts newline-type characters to spaces, then squeezes and trims
+/// whitespace. Returns `None` if the result is empty.
+fn normalize_title(raw: &str) -> Option<String> {
+    let normalized: String = raw
+        .chars()
+        .map(|c| if c == '\n' || c == '\r' { ' ' } else { c })
+        .collect();
+    let squeezed = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
+    let trimmed = squeezed.trim().to_string();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed)
+    }
+}
+
+/// Extracts the `data-scrapbook-title` attribute from the `html` tag, if present.
+fn extract_scrapbook_title(document: &Html) -> Option<String> {
+    let selector = Selector::parse("html").ok()?;
+    let html_tag = document.select(&selector).next()?;
+    let raw = html_tag.value().attr("data-scrapbook-title")?;
+    normalize_title(raw)
+}
+
+/// Extracts the text content of the first `h1` tag, if present.
+fn extract_first_h1(document: &Html) -> Option<String> {
+    let selector = Selector::parse("h1").ok()?;
+    let h1 = document.select(&selector).next()?;
+    let text: String = h1.text().collect::<Vec<_>>().join(" ");
+    normalize_title(&text)
+}
+
+/// Extracts the Open Graph title from parsed webpage info, if present.
+fn extract_og_title(html_info: &webpage::HTML) -> Option<String> {
+    let value = html_info.opengraph.properties.get("title")?.first()?;
+    normalize_title(value)
+}
+
+/// Extracts the Twitter card title (`meta[name="twitter:title"]`), if present.
+fn extract_twitter_title(document: &Html) -> Option<String> {
+    let selector = Selector::parse(r#"meta[name="twitter:title"]"#).ok()?;
+    let meta = document.select(&selector).next()?;
+    let raw = meta.value().attr("content")?;
+    normalize_title(raw)
+}
+
+/// Resolves the title for a web archive using the following precedence:
+///
+/// 1. `data-scrapbook-title` attribute on the `html` tag
+/// 2. `<title>` tag (as parsed by the `webpage` crate)
+/// 3. First `<h1>` tag
+/// 4. Open Graph title (`og:title`)
+/// 5. Twitter card title (`twitter:title`)
+fn extract_title(document: &Html, html_info: &webpage::HTML) -> Option<String> {
+    if let Some(title) = extract_scrapbook_title(document) {
+        return Some(title);
+    }
+    if let Some(title) = html_info.title.as_deref().and_then(normalize_title) {
+        return Some(title);
+    }
+    if let Some(title) = extract_first_h1(document) {
+        return Some(title);
+    }
+    if let Some(title) = extract_og_title(html_info) {
+        return Some(title);
+    }
+    if let Some(title) = extract_twitter_title(document) {
+        return Some(title);
+    }
+    None
 }
 
 /// A representation of archived web pages
@@ -96,10 +173,9 @@ impl WebArchive {
     ///
     /// ## Title
     ///
-    /// We try to retrieve the title by:
-    ///
-    /// 1. Concatenating the text content of all `title` tags (some sites mistakenly use more than one).
-    /// 2. Finding the first `H1` on the page and pulling its text content.
+    /// The title is not resolved here; it is lazily resolved (along with the
+    /// rest of the parsed page info) the first time it is requested. See
+    /// [`extract_title`] for the precedence used.
     pub fn new(disk_path: Arc<FilePath>) -> Result<Self> {
         // read file from disk
         match disk_path.open() {
@@ -133,6 +209,7 @@ impl WebArchive {
                 Ok(WebArchive {
                     source: Link::new(uri, None, disk_path),
                     html_info: OnceLock::new(),
+                    resolved_title: OnceLock::new(),
                 })
             }
             Err(_e) => {
@@ -150,6 +227,44 @@ impl WebArchive {
         Ok(())
     }
 
+    /// Ensures that `html_info` and `resolved_title` have been loaded.
+    ///
+    /// This reads the file once, parses it both as a `scraper::Html` document
+    /// (for the custom title sources) and via `webpage::HTML` (for the
+    /// standard title/Open Graph/text content parsing), and resolves the
+    /// title using the precedence described in [`extract_title`].
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the file cannot be read, if the
+    /// webpage cannot be parsed, or if we cannot store the results in the
+    /// `OnceLock`s.
+    fn ensure_loaded(&self) -> Result<()> {
+        if self.html_info.get().is_some() {
+            return Ok(());
+        }
+        trace!(url = %self.url(), "Lazily loading html_info and title for web archive");
+
+        let path = self.source.disk_path.path();
+        let content = std::fs::read_to_string(&path).context("could not read web archive file")?;
+
+        let document = Html::parse_document(&content);
+
+        let html = HTML::from_string(content.clone(), Some(self.source.raw_uri().to_owned()))
+            .context("could not collect webpage info")?;
+
+        let resolved = extract_title(&document, &html);
+
+        self.html_info
+            .set(html)
+            .map_err(|_| eyre!("could not set html_info"))?;
+        self.resolved_title
+            .set(resolved)
+            .map_err(|_| eyre!("could not set resolved_title"))?;
+
+        Ok(())
+    }
+
     /// Returns the html info of this [`WebArchive`].
     ///
     /// This function lazily loads information for the webpage. We're doing this because loading the whole file and parsing it is a time consuming operation.
@@ -158,19 +273,7 @@ impl WebArchive {
     ///
     /// This function will return an error if the webpage cannot be parsed, if we cannot store the result in the `OnceLock` or if we cannot read the existing `webpage::HTML` from the `OnceLock`.
     fn html_info(&self) -> Result<&webpage::HTML> {
-        if self.html_info.get().is_none() {
-            trace!(url = %self.url(), "Lazily loading html_info for web archive");
-            let html = HTML::from_file(
-                &self.source.disk_path.path(),
-                Some(self.source.raw_uri().to_owned()),
-            )
-            .context("could not collect webpage info")?;
-
-            self.html_info
-                .set(html)
-                // TODO replace the debug format specifier with a more idiomatic call
-                .map_err(|e| eyre::eyre!("{:?}", e))?;
-        }
+        self.ensure_loaded()?;
         self.html_info.get().ok_or(eyre!("could not get html_info"))
     }
 
@@ -178,12 +281,14 @@ impl WebArchive {
         self.source.raw_uri()
     }
 
+    /// Returns the resolved title for this web archive, lazily computed the
+    /// first time it is requested. See [`extract_title`] for the precedence
+    /// of title sources used.
     fn title(&self) -> Option<&str> {
-        // TODO: get the title from the first H1 if there is no title tag
-        //       note that this will likely cause a slowdown in parsing as we'll have to look at much more of the file
-
-        // TODO do we want to update the source title here?
-        self.source.title()
+        if self.ensure_loaded().is_err() {
+            return None;
+        }
+        self.resolved_title.get().and_then(|opt| opt.as_deref())
     }
 
     fn disk_path(&self) -> Arc<FilePath> {
