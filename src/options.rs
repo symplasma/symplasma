@@ -15,7 +15,7 @@ pub(crate) struct Cli {
     pub(crate) verbose: u8,
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum Commands {
     /// Configuration management
     Config {
@@ -72,7 +72,7 @@ pub(crate) enum Commands {
     },
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum ConfigCommands {
     /// Show the current configuration
     Show,
@@ -80,7 +80,7 @@ pub(crate) enum ConfigCommands {
     CreateDefault,
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum SourceCommands {
     /// List all files from this source
     Files,
