@@ -31,7 +31,29 @@ pub struct WebArchive {
 /// In the future, we may support other archive formats like [monolith](https://github.com/Y2Z/monolith) and [Web ARChive file format (WARC)](https://www.loc.gov/preservation/digital/formats/fdd/fdd000236.shtml).
 impl WebArchive {
     pub fn items(config: &Config) -> Vec<Self> {
-        vec![]
+        let mut items = Vec::new();
+
+        for base_path in &config.web_archives {
+            let data_dir = base_path.join("data");
+            let dir = if data_dir.is_dir() {
+                data_dir
+            } else {
+                base_path.clone()
+            };
+
+            let entries = match std::fs::read_dir(&dir) {
+                Ok(entries) => entries,
+                Err(_) => continue,
+            };
+
+            for entry in entries.filter_map(|e| e.ok()) {
+                if let Ok(archive) = WebArchive::new_from_pathbuf(entry.path()) {
+                    items.push(archive);
+                }
+            }
+        }
+
+        items
     }
 
     pub(crate) fn new_from_pathbuf(path: PathBuf) -> Result<WebArchive> {
