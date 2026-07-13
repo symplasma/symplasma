@@ -12,7 +12,7 @@ use std::{
     fmt::Display,
     io::{BufRead, BufReader},
 };
-use tracing::debug;
+use tracing::{debug, trace};
 use webpage::HTML;
 
 #[derive(Debug)]
@@ -40,23 +40,36 @@ impl WebArchive {
             } else {
                 base_path.clone()
             };
+            debug!(dir = %dir.display(), "Scanning for web archives");
 
             let entries = match std::fs::read_dir(&dir) {
                 Ok(entries) => entries,
-                Err(_) => continue,
+                Err(e) => {
+                    debug!(dir = %dir.display(), error = %e, "Could not read directory");
+                    continue;
+                }
             };
 
             for entry in entries.filter_map(|e| e.ok()) {
-                if let Ok(archive) = WebArchive::new_from_pathbuf(entry.path()) {
-                    items.push(archive);
+                let path = entry.path();
+                match WebArchive::new_from_pathbuf(path.clone()) {
+                    Ok(archive) => {
+                        trace!(path = %path.display(), "Loaded web archive");
+                        items.push(archive);
+                    }
+                    Err(e) => {
+                        trace!(path = %path.display(), error = %e, "Failed to load web archive");
+                    }
                 }
             }
         }
 
+        debug!(count = items.len(), "Finished scanning for web archives");
         items
     }
 
     pub(crate) fn new_from_pathbuf(path: PathBuf) -> Result<WebArchive> {
+        trace!(path = %path.display(), "Creating WebArchive from path");
         let file_path = FilePath::new(path)?;
         Self::new(file_path.into())
     }
@@ -104,13 +117,17 @@ impl WebArchive {
                     .context("could not get 'data-scrapbook-source' attr")?
                     .to_string();
                 // TODO: get the archive date from "data-scrapbook-create"
+                debug!(uri, path = %disk_path.path(), "Created WebArchive from disk");
 
                 Ok(WebArchive {
                     source: Link::new(uri, None, disk_path),
                     html_info: OnceLock::new(),
                 })
             }
-            Err(_e) => Err(eyre!("could not read web archive")),
+            Err(_e) => {
+                debug!(path = %disk_path.path(), "Could not read web archive from disk");
+                Err(eyre!("could not read web archive"))
+            }
         }
     }
 
@@ -131,6 +148,7 @@ impl WebArchive {
     /// This function will return an error if the webpage cannot be parsed, if we cannot store the result in the `OnceLock` or if we cannot read the existing `webpage::HTML` from the `OnceLock`.
     fn html_info(&self) -> Result<&webpage::HTML> {
         if self.html_info.get().is_none() {
+            trace!(url = %self.url(), "Lazily loading html_info for web archive");
             let html = HTML::from_file(
                 &self.source.disk_path.path(),
                 Some(self.source.raw_uri().to_owned()),
@@ -171,13 +189,15 @@ impl WebArchive {
     /// The file could be fully parsed in the constructor and the error thrown there, but this allows us to defer parsing until the call to links.
     /// Though, this may cause the file to be opened twice.
     fn links(&mut self) -> Result<Vec<Link>> {
-        Ok(self
+        let links: Vec<Link> = self
             .html_info()
             .context("could not get html_info")?
             .links
             .iter()
             .map(|l| Link::new(l.url.clone(), Some(l.text.clone()), self.disk_path()))
-            .collect())
+            .collect();
+        debug!(count = links.len(), url = %self.url(), "Extracted links from web archive");
+        Ok(links)
     }
 }
 

@@ -10,13 +10,18 @@ use symplasma::kind::traits::Kind as _;
 use symplasma::kind::web_archives::WebArchive;
 use symplasma::sources::Source;
 use symplasma::{find, find_or_create};
+use tracing::debug;
 
 use crate::options::{Cli, Commands, ConfigCommands, SourceCommands};
 
 fn main() -> Result<(), Box<dyn Error>> {
+    tracing_subscriber::fmt::init();
+
     let cli = Cli::parse();
+    debug!(command = ?cli.command, "Parsed CLI arguments");
 
     let config = Config::load()?;
+    debug!(?config, "Loaded configuration");
 
     match cli.command {
         Commands::Config { what } => match what {
@@ -63,6 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn handle_config_show() {
+    debug!("Handling config show command");
     match Config::load() {
         Ok(config) => {
             println!("Config file: {}", Config::config_path().display());
@@ -77,6 +83,7 @@ fn handle_config_show() {
 
 fn handle_config_create_default() {
     let path = Config::config_path();
+    debug!(path = %path.display(), "Handling config create-default command");
     if path.exists() {
         eprintln!("Config file already exists at: {}", path.display());
         eprintln!("Remove it first if you want to create a new default config.");
@@ -95,12 +102,14 @@ fn handle_config_create_default() {
 }
 
 fn handle_list_sources() {
+    debug!("Handling list sources command");
     for source in Source::iter() {
         println!("{}", source);
     }
 }
 
 fn handle_source_command(config: &Config, source: Source, what: SourceCommands) {
+    debug!(?source, ?what, "Handling source command");
     match what {
         SourceCommands::Files => handle_list_files(config, source),
         SourceCommands::Dirs => handle_list_dirs(config, source),
@@ -124,6 +133,7 @@ fn handle_list_files(config: &Config, source: Source) {
         Source::Music => todo!(),
         Source::Audio => todo!(),
     };
+    debug!(count = items.len(), ?source, "Found files");
     for item in items {
         println!("{}", item.display());
     }
@@ -141,6 +151,7 @@ fn handle_list_dirs(config: &Config, source: Source) {
         Source::Music => todo!(),
         Source::Audio => todo!(),
     };
+    debug!(?source, "Found directories");
     // for item in items {
     //     println!("{}", item.display());
     // }
@@ -158,12 +169,14 @@ fn handle_list_items(config: &Config, source: Source) {
         Source::Music => todo!(),
         Source::Audio => todo!(),
     };
+    debug!(count = items.len(), ?source, "Found items");
     for item in items {
         println!("{}", item);
     }
 }
 
 fn handle_find(source: Option<Source>, file_name: &str) {
+    debug!(?source, file_name, "Handling find command");
     match find(source, file_name) {
         Some(path) => println!("{}", path.display()),
         None => {
@@ -174,6 +187,7 @@ fn handle_find(source: Option<Source>, file_name: &str) {
 }
 
 fn handle_find_or_create(source: Option<Source>, file_name: &str) {
+    debug!(?source, file_name, "Handling find-or-create command");
     let path = find_or_create(source, file_name);
     println!("{}", path.display());
 }

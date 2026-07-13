@@ -1,5 +1,6 @@
 use crate::{config::Config, kind::traits::Kind};
 use std::path::{Path, PathBuf};
+use tracing::{debug, trace};
 
 pub struct Markdown {
     path: PathBuf,
@@ -17,10 +18,13 @@ fn expand_tilde(path: &Path) -> PathBuf {
     if let Some(path_str) = path.to_str() {
         if let Some(stripped) = path_str.strip_prefix("~/") {
             if let Some(home) = directories::UserDirs::new().map(|d| d.home_dir().to_path_buf()) {
-                return home.join(stripped);
+                let expanded = home.join(stripped);
+                trace!(original = %path.display(), expanded = %expanded.display(), "Expanded tilde path");
+                return expanded;
             }
         } else if path_str == "~" {
             if let Some(home) = directories::UserDirs::new().map(|d| d.home_dir().to_path_buf()) {
+                trace!(original = %path.display(), expanded = %home.display(), "Expanded tilde path");
                 return home;
             }
         }
@@ -36,9 +40,13 @@ fn is_markdown_extension(path: &Path) -> bool {
 }
 
 fn is_utf8_file(path: &Path) -> bool {
-    std::fs::read(path)
+    let result = std::fs::read(path)
         .map(|bytes| std::str::from_utf8(&bytes).is_ok())
-        .unwrap_or(false)
+        .unwrap_or(false);
+    if !result {
+        trace!(path = %path.display(), "File is not valid UTF-8 or could not be read");
+    }
+    result
 }
 
 impl Kind for Markdown {
@@ -47,6 +55,7 @@ impl Kind for Markdown {
 
         for base_path in &config.markdown {
             let expanded = expand_tilde(base_path);
+            debug!(base_path = %base_path.display(), expanded = %expanded.display(), "Scanning for markdown files");
 
             let walker = ignore::WalkBuilder::new(&expanded)
                 .follow_links(true)
@@ -57,11 +66,13 @@ impl Kind for Markdown {
             for entry in walker {
                 let path = entry.path();
                 if is_markdown_extension(path) && is_utf8_file(path) {
+                    trace!(path = %path.display(), "Found markdown file");
                     files.push(path.to_path_buf());
                 }
             }
         }
 
+        debug!(count = files.len(), "Finished scanning for markdown files");
         files
     }
 

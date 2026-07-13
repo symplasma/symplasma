@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use serde::Deserialize;
+use tracing::{debug, trace};
 
 /// Represents the application configuration loaded from KDL files.
 #[derive(Debug, Clone, Deserialize)]
@@ -30,29 +31,39 @@ impl Config {
     /// If the config file is not found, returns a default configuration.
     pub fn load() -> Result<Self, ConfigError> {
         let path = Self::config_path();
+        debug!(path = %path.display(), "Loading configuration");
         if !path.exists() {
+            debug!("Config file does not exist, using default configuration");
             return Ok(Self::default());
         }
         let content = std::fs::read_to_string(&path).map_err(ConfigError::IoError)?;
+        trace!(content, "Read configuration file contents");
         Self::parse_kdl(&content)
     }
 
     /// Returns the path to the config file according to XDG Base Directory Specification.
     pub fn config_path() -> PathBuf {
-        directories::ProjectDirs::from("com", "symplasma", "symplasma")
+        let path = directories::ProjectDirs::from("com", "symplasma", "symplasma")
             .map(|dirs| dirs.config_dir().join("config.kdl"))
-            .unwrap_or_else(|| PathBuf::from("config.kdl"))
+            .unwrap_or_else(|| PathBuf::from("config.kdl"));
+        trace!(path = %path.display(), "Resolved config path");
+        path
     }
 
     /// Parses a KDL configuration string into a Config struct.
     pub fn parse_kdl(content: &str) -> Result<Self, ConfigError> {
-        serde_kdl2::from_str(content).map_err(|e| ConfigError::ParseError(e.to_string()))
+        debug!("Parsing KDL configuration content");
+        serde_kdl2::from_str(content).map_err(|e| {
+            debug!(error = %e, "Failed to parse KDL configuration");
+            ConfigError::ParseError(e.to_string())
+        })
     }
 
     /// Writes the default configuration to the config file path.
     /// Creates parent directories if they don't exist.
     pub fn write_default() -> Result<(), ConfigError> {
         let path = Self::config_path();
+        debug!(path = %path.display(), "Writing default configuration");
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(ConfigError::IoError)?;
         }

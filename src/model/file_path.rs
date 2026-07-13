@@ -6,6 +6,7 @@ use std::{
     io::prelude::*,
     path::{Path, PathBuf},
 };
+use tracing::{debug, trace};
 
 const UNKNOWN_TYPE: &str = "UNKNOWN_TYPE";
 
@@ -25,6 +26,7 @@ impl FilePath {
     // TODO: add a find or create method to pull existing paths from the database
     pub fn new(path: PathBuf) -> Result<FilePath> {
         let mime = mime_types(&path).context("could not determine mime type")?;
+        debug!(path = %path.display(), ?mime, "Created FilePath");
         Ok(FilePath {
             path,
             mime,
@@ -70,7 +72,9 @@ impl FilePath {
     ///
     /// This function attempts to convert a document to plain text in a sensible way based on the guessed mime type.
     pub fn plain_text(&self) -> Result<String> {
-        match self.guessed_mime().as_str() {
+        let guessed_mime = self.guessed_mime();
+        trace!(path = %self.path(), mime = %guessed_mime, "Extracting plain text");
+        match guessed_mime.as_str() {
             "text/html" => {
                 // parse html to plain text
                 match File::open(self.path.clone()) {
@@ -92,7 +96,10 @@ impl FilePath {
             }
             "text/markdown" => Ok(self.text()?),
             "text/plain" => Ok(self.text()?),
-            guessed_mime => bail!("Unknown file type '{}': {}", guessed_mime, self.path()),
+            guessed_mime => {
+                debug!(path = %self.path(), mime = guessed_mime, "Unknown file type");
+                bail!("Unknown file type '{}': {}", guessed_mime, self.path())
+            }
         }
     }
 }
@@ -112,10 +119,11 @@ impl fmt::Display for FilePath {
 /// Checks the mime type with the tree_magic_mini library. If that returns "text/plain" or fails to return anything then we use mime_guess to try and find something more specific or something at all.
 fn mime_types(path: &Path) -> Result<Vec<String>> {
     // test mime type with tree_magic
-    match infer::get_from_path(path)
+    let inferred = infer::get_from_path(path)
         .context("could not read file successfully")?
-        .map(|t| t.mime_type())
-    {
+        .map(|t| t.mime_type());
+    trace!(path = %path.display(), ?inferred, "Inferred mime type");
+    match inferred {
         // if the type is "text/plain" then check the extension for a better guess
         Some("text/plain") => Ok(mime_guess::from_path(path)
             .iter()

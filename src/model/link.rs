@@ -4,6 +4,7 @@ use std::{
     fmt::{self, Display},
     sync::Arc,
 };
+use tracing::{debug, trace};
 use url::Url;
 
 /// Holds link information
@@ -28,6 +29,10 @@ impl Link {
     pub fn new(uri: String, title: Option<String>, disk_path: Arc<FilePath>) -> Self {
         // TODO: make this return a result object or set an appropriate status for unparseable links
         let parsed_url = Url::parse(&uri).context("Could not parse Url");
+        match &parsed_url {
+            Ok(url) => trace!(uri, %url, "Parsed link URL"),
+            Err(e) => debug!(uri, error = %e, "Could not parse link URL"),
+        }
         Link {
             raw_uri: uri,
             url: parsed_url,
@@ -101,9 +106,14 @@ impl Link {
         // does link have a valid FilePath in the database?
 
         if self.raw_uri.starts_with('#') {
+            trace!(uri = %self.raw_uri, "Not storing anchor link");
             return false;
         };
-        !matches!(self.scheme(), Some("javascript") | None)
+        let store = !matches!(self.scheme(), Some("javascript") | None);
+        if !store {
+            trace!(uri = %self.raw_uri, "Not storing link with excluded scheme");
+        }
+        store
     }
 }
 
