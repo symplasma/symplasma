@@ -2,6 +2,11 @@ use std::path::PathBuf;
 
 use strum::{Display, EnumIter, EnumString};
 
+use crate::config::Config;
+use crate::kind::markdown::Markdown;
+use crate::kind::traits::Kind as _;
+use crate::kind::web_archives::WebArchive;
+
 /// Represents the different types of data sources.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, EnumString, Display)]
 #[strum(serialize_all = "lowercase")]
@@ -51,6 +56,41 @@ impl Source {
     /// Returns the configured paths for this source type.
     pub fn paths(&self, config: &crate::config::Config) -> &[PathBuf] {
         todo!()
+    }
+
+    /// Lists all files for this source.
+    ///
+    /// Sources that don't yet have an implementation return an empty list.
+    pub fn files(&self, config: &Config) -> Vec<PathBuf> {
+        match self {
+            Source::Markdown => Markdown::files(config),
+            Source::WebArchives => WebArchive::files(config),
+            _ => Vec::new(),
+        }
+    }
+
+    /// Lists all directories for this source.
+    ///
+    /// Sources that don't yet have an implementation return an empty list.
+    pub fn dirs(&self, config: &Config) -> Vec<PathBuf> {
+        match self {
+            Source::WebArchives => WebArchive::dirs(config),
+            _ => Vec::new(),
+        }
+    }
+
+    /// Prints all items for this source.
+    ///
+    /// Sources that don't yet have an implementation do nothing.
+    pub fn print_items(&self, config: &Config) {
+        match self {
+            Source::WebArchives => {
+                for item in WebArchive::items(config) {
+                    println!("{item}");
+                }
+            }
+            _ => {}
+        }
     }
 }
 
