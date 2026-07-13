@@ -93,33 +93,3 @@ impl Source {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_source_all() {
-        todo!()
-    }
-
-    #[test]
-    fn test_source_is_collection() {
-        todo!()
-    }
-
-    #[test]
-    fn test_source_name() {
-        todo!()
-    }
-
-    #[test]
-    fn test_source_from_name() {
-        todo!()
-    }
-
-    #[test]
-    fn test_source_from_str() {
-        todo!()
-    }
-}

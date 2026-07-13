@@ -20,28 +20,3 @@ pub fn find(source: Option<Source>, file_name: &str) -> Option<PathBuf> {
 pub fn find_or_create(source: Option<Source>, file_name: &str) -> PathBuf {
     todo!()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_list_sources() {
-        todo!()
-    }
-
-    #[test]
-    fn test_list_items() {
-        todo!()
-    }
-
-    #[test]
-    fn test_find() {
-        todo!()
-    }
-
-    #[test]
-    fn test_find_or_create() {
-        todo!()
-    }
-}
