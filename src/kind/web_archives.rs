@@ -1,3 +1,4 @@
+use crate::config::{self, Config};
 use crate::kind::traits::Kind;
 use crate::model::file_path::FilePath;
 use crate::model::link::Link;
@@ -14,10 +15,6 @@ use std::{
 use tracing::debug;
 use webpage::HTML;
 
-pub struct WebArchives {
-    path: PathBuf,
-}
-
 #[derive(Debug)]
 pub struct WebArchive {
     /// The link from which this page was archived
@@ -33,6 +30,10 @@ pub struct WebArchive {
 /// Currently, this is mostly intended to work with pages archived by [WebScrapbook](https://github.com/danny0838/webscrapbook).
 /// In the future, we may support other archive formats like [monolith](https://github.com/Y2Z/monolith) and [Web ARChive file format (WARC)](https://www.loc.gov/preservation/digital/formats/fdd/fdd000236.shtml).
 impl WebArchive {
+    pub fn items(config: &Config) -> Vec<Self> {
+        vec![]
+    }
+
     pub(crate) fn new_from_pathbuf(path: PathBuf) -> Result<WebArchive> {
         let file_path = FilePath::new(path)?;
         Self::new(file_path.into())
@@ -165,7 +166,7 @@ impl Display for WebArchive {
     }
 }
 
-impl Kind for WebArchives {
+impl Kind for WebArchive {
     fn files(config: &crate::config::Config) -> Vec<PathBuf> {
         todo!()
     }

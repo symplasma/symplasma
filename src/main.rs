@@ -7,7 +7,7 @@ use strum::IntoEnumIterator as _;
 use symplasma::config::Config;
 use symplasma::kind::markdown::Markdown;
 use symplasma::kind::traits::Kind as _;
-use symplasma::kind::web_archives::WebArchives;
+use symplasma::kind::web_archives::WebArchive;
 use symplasma::sources::Source;
 use symplasma::{find, find_or_create};
 
@@ -103,8 +103,8 @@ fn handle_list_sources() {
 fn handle_source_command(config: &Config, source: Source, what: SourceCommands) {
     match what {
         SourceCommands::Files => handle_list_files(config, source),
-        SourceCommands::Dirs => todo!(),
-        SourceCommands::List => todo!(),
+        SourceCommands::Dirs => handle_list_dirs(config, source),
+        SourceCommands::List => handle_list_items(config, source),
         SourceCommands::Find { file_name } => handle_find(Some(source), &file_name),
         SourceCommands::FindOrCreate { file_name } => {
             handle_find_or_create(Some(source), &file_name)
@@ -118,7 +118,7 @@ fn handle_list_files(config: &Config, source: Source) {
         Source::Projects => todo!(),
         Source::Repos => todo!(),
         Source::Markdown => Markdown::files(config),
-        Source::WebArchives => WebArchives::files(config),
+        Source::WebArchives => WebArchive::files(config),
         Source::Pictures => todo!(),
         Source::Videos => todo!(),
         Source::Music => todo!(),
@@ -126,6 +126,40 @@ fn handle_list_files(config: &Config, source: Source) {
     };
     for item in items {
         println!("{}", item.display());
+    }
+}
+
+fn handle_list_dirs(config: &Config, source: Source) {
+    let items = match source {
+        Source::Circles => todo!(),
+        Source::Projects => todo!(),
+        Source::Repos => todo!(),
+        Source::Markdown => todo!(),
+        Source::WebArchives => todo!(),
+        Source::Pictures => todo!(),
+        Source::Videos => todo!(),
+        Source::Music => todo!(),
+        Source::Audio => todo!(),
+    };
+    // for item in items {
+    //     println!("{}", item.display());
+    // }
+}
+
+fn handle_list_items(config: &Config, source: Source) {
+    let items = match source {
+        Source::Circles => todo!(),
+        Source::Projects => todo!(),
+        Source::Repos => todo!(),
+        Source::Markdown => todo!(),
+        Source::WebArchives => WebArchive::items(config),
+        Source::Pictures => todo!(),
+        Source::Videos => todo!(),
+        Source::Music => todo!(),
+        Source::Audio => todo!(),
+    };
+    for item in items {
+        println!("{}", item);
     }
 }
 
