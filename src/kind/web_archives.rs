@@ -207,6 +207,7 @@ impl WebArchive {
                 debug!(uri, path = %disk_path.path(), "Created WebArchive from disk");
 
                 Ok(WebArchive {
+                    // TODO we should probably insert the title here, but that might prevent lazy loading
                     source: Link::new(uri, None, disk_path),
                     html_info: OnceLock::new(),
                     resolved_title: OnceLock::new(),
@@ -248,6 +249,7 @@ impl WebArchive {
         let path = self.source.disk_path.path();
         let content = std::fs::read_to_string(&path).context("could not read web archive file")?;
 
+        // TODO we're parsing the document twice here, need to decide which crate to use and only parse once
         let document = Html::parse_document(&content);
 
         let html = HTML::from_string(content.clone(), Some(self.source.raw_uri().to_owned()))
