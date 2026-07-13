@@ -54,13 +54,22 @@ impl WebArchive {
 
             for entry in entries.filter_map(|e| e.ok()) {
                 let path = entry.path();
-                match WebArchive::new_from_pathbuf(path.clone()) {
+                let index_path = if path.is_dir() {
+                    path.join("index.html")
+                } else {
+                    path.clone()
+                };
+                if !index_path.is_file() {
+                    trace!(path = %path.display(), "No index.html found in web archive entry, skipping");
+                    continue;
+                }
+                match WebArchive::new_from_pathbuf(index_path.clone()) {
                     Ok(archive) => {
-                        trace!(path = %path.display(), "Loaded web archive");
+                        trace!(path = %index_path.display(), "Loaded web archive");
                         items.push(archive);
                     }
                     Err(e) => {
-                        trace!(path = %path.display(), error = %e, "Failed to load web archive");
+                        trace!(path = %index_path.display(), error = %e, "Failed to load web archive");
                     }
                 }
             }
