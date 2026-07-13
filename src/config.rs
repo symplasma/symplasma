@@ -159,7 +159,7 @@ mod tests {
     #[test]
     fn test_parse_kdl() {
         let kdl_content = r#"
-            circles "~/circles"
+            circles "~/circles" "~/other-circles"
             projects "~/projects"
             repos "~/repos"
             markdown "~/notes"
