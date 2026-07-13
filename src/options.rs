@@ -1,5 +1,4 @@
 use clap::{Parser, Subcommand};
-use symplasma::sources::Source;
 
 #[derive(Parser)]
 #[command(name = "symplasma")]

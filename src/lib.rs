@@ -5,29 +5,9 @@ pub mod sources;
 use sources::Source;
 use std::path::PathBuf;
 
-use crate::{
-    config::Config,
-    kind::{markdown::Markdown, traits::Kind, web_scrap_book_archive::WebScrapBookArchive},
-};
-
 /// Lists all directories and files from the given source.
 pub fn list_items(source: Source) -> Vec<PathBuf> {
     todo!()
-}
-
-/// Lists all directories and files from the given source.
-pub fn list_files(config: &Config, source: Source) -> Vec<PathBuf> {
-    match source {
-        Source::Circles => todo!(),
-        Source::Projects => todo!(),
-        Source::Repos => todo!(),
-        Source::Markdown => Markdown::files(config),
-        Source::WebScrapBookArchive => WebScrapBookArchive::files(config),
-        Source::Pictures => todo!(),
-        Source::Videos => todo!(),
-        Source::Music => todo!(),
-        Source::Audio => todo!(),
-    }
 }
 
 /// Finds the path to the given file, optionally scoped to a source type.

@@ -5,8 +5,11 @@ use std::error::Error;
 use clap::Parser;
 use strum::IntoEnumIterator as _;
 use symplasma::config::Config;
+use symplasma::kind::markdown::Markdown;
+use symplasma::kind::traits::Kind as _;
+use symplasma::kind::web_scrap_book_archive::WebScrapBookArchive;
 use symplasma::sources::Source;
-use symplasma::{find, find_or_create, list_files};
+use symplasma::{find, find_or_create};
 
 use crate::options::{Cli, Commands, ConfigCommands, SourceCommands};
 
@@ -108,7 +111,17 @@ fn handle_source_command(config: &Config, source: Source, what: SourceCommands) 
 }
 
 fn handle_list_files(config: &Config, source: Source) {
-    let items = list_files(config, source);
+    let items = match source {
+        Source::Circles => todo!(),
+        Source::Projects => todo!(),
+        Source::Repos => todo!(),
+        Source::Markdown => Markdown::files(config),
+        Source::WebScrapBookArchive => WebScrapBookArchive::files(config),
+        Source::Pictures => todo!(),
+        Source::Videos => todo!(),
+        Source::Music => todo!(),
+        Source::Audio => todo!(),
+    };
     for item in items {
         println!("{}", item.display());
     }
