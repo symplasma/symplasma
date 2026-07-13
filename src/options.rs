@@ -78,6 +78,10 @@ pub(crate) enum ConfigCommands {
 #[derive(Subcommand)]
 pub(crate) enum SourceCommands {
     /// List all files from this source
+    Files,
+    /// List all directories from this source
+    Dirs,
+    /// List all items from this source
     List,
     /// Find the path to a file
     Find {

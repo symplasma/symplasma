@@ -102,7 +102,9 @@ fn handle_list_sources() {
 
 fn handle_source_command(config: &Config, source: Source, what: SourceCommands) {
     match what {
-        SourceCommands::List => handle_list_files(config, source),
+        SourceCommands::Files => handle_list_files(config, source),
+        SourceCommands::Dirs => todo!(),
+        SourceCommands::List => todo!(),
         SourceCommands::Find { file_name } => handle_find(Some(source), &file_name),
         SourceCommands::FindOrCreate { file_name } => {
             handle_find_or_create(Some(source), &file_name)
