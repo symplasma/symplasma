@@ -1,4 +1,4 @@
-use crate::config::{self, Config};
+use crate::config::Config;
 use crate::kind::traits::Kind;
 use crate::kind::util::expand_tilde;
 use crate::model::file_path::FilePath;
@@ -65,7 +65,7 @@ fn extract_first_h1(document: &Html) -> Option<String> {
 
 /// Extracts the Open Graph title from parsed webpage info, if present.
 fn extract_og_title(html_info: &webpage::HTML) -> Option<String> {
-    let value = html_info.opengraph.properties.get("title")?.first()?;
+    let value = html_info.opengraph.properties.get("title")?;
     normalize_title(value)
 }
 
