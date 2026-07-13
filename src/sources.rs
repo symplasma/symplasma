@@ -74,8 +74,15 @@ impl Source {
     /// Sources that don't yet have an implementation return an empty list.
     pub fn dirs(&self, config: &Config) -> Vec<PathBuf> {
         match self {
+            Source::Circles => todo!(),
+            Source::Projects => todo!(),
+            Source::Repos => todo!(),
+            Source::Markdown => Markdown::dirs(config),
             Source::WebArchives => WebArchive::dirs(config),
-            _ => Vec::new(),
+            Source::Pictures => todo!(),
+            Source::Videos => todo!(),
+            Source::Music => todo!(),
+            Source::Audio => todo!(),
         }
     }
 
