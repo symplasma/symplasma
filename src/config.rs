@@ -14,7 +14,7 @@ pub struct Config {
     #[serde(default)]
     pub markdown: Vec<PathBuf>,
     #[serde(default)]
-    pub web_scrap_book_archive: Vec<PathBuf>,
+    pub web_archives: Vec<PathBuf>,
     #[serde(default)]
     pub pictures: Vec<PathBuf>,
     #[serde(default)]
@@ -73,7 +73,7 @@ circles "~/circles"
 projects "~/projects"
 repos "~/repos"
 markdown "~/notes"
-web_scrap_book_archive "~/Downloads/WebScrapBook"
+web_archives "~/Downloads/WebScrapBook"
 pictures "~/pictures"
 videos "~/videos"
 music "~/music"
@@ -90,7 +90,7 @@ impl Default for Config {
             projects: vec![PathBuf::from("~/projects")],
             repos: vec![PathBuf::from("~/repos")],
             markdown: vec![PathBuf::from("~/notes")],
-            web_scrap_book_archive: vec![PathBuf::from("~/Downloads/WebScrapBook")],
+            web_archives: vec![PathBuf::from("~/Downloads/WebScrapBook")],
             pictures: vec![PathBuf::from("~/pictures")],
             videos: vec![PathBuf::from("~/videos")],
             music: vec![PathBuf::from("~/music")],
