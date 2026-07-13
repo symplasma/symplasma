@@ -108,7 +108,7 @@ fn extract_title(document: &Html, html_info: &webpage::HTML) -> Option<String> {
 /// Currently, this is mostly intended to work with pages archived by [WebScrapbook](https://github.com/danny0838/webscrapbook).
 /// In the future, we may support other archive formats like [monolith](https://github.com/Y2Z/monolith) and [Web ARChive file format (WARC)](https://www.loc.gov/preservation/digital/formats/fdd/fdd000236.shtml).
 impl WebArchive {
-    pub fn items(config: &Config) -> Vec<Self> {
+    pub fn dirs(config: &Config) -> Vec<PathBuf> {
         let mut items = Vec::new();
 
         for base_path in &config.web_archives {
@@ -130,24 +130,24 @@ impl WebArchive {
             };
 
             for entry in entries.filter_map(|e| e.ok()) {
-                let path = entry.path();
-                let index_path = if path.is_dir() {
-                    path.join("index.html")
-                } else {
-                    path.clone()
-                };
-                if !index_path.is_file() {
-                    trace!(path = %path.display(), "No index.html found in web archive entry, skipping");
-                    continue;
+                items.push(entry.path());
+            }
+        }
+
+        items
+    }
+
+    pub fn items(config: &Config) -> Vec<Self> {
+        let mut items = Vec::new();
+
+        for entry in Self::files(config) {
+            match WebArchive::new_from_pathbuf(entry.clone()) {
+                Ok(archive) => {
+                    trace!(path = %entry.display(), "Loaded web archive");
+                    items.push(archive);
                 }
-                match WebArchive::new_from_pathbuf(index_path.clone()) {
-                    Ok(archive) => {
-                        trace!(path = %index_path.display(), "Loaded web archive");
-                        items.push(archive);
-                    }
-                    Err(e) => {
-                        trace!(path = %index_path.display(), error = %e, "Failed to load web archive");
-                    }
+                Err(e) => {
+                    trace!(path = %entry.display(), error = %e, "Failed to load web archive");
                 }
             }
         }
@@ -327,8 +327,23 @@ impl Display for WebArchive {
 }
 
 impl Kind for WebArchive {
-    fn files(config: &crate::config::Config) -> Vec<PathBuf> {
-        todo!()
+    fn files(config: &Config) -> Vec<PathBuf> {
+        let mut items = Vec::new();
+
+        for path in Self::dirs(config) {
+            let index_path = if path.is_dir() {
+                path.join("index.html")
+            } else {
+                path.clone()
+            };
+            if !index_path.is_file() {
+                trace!(path = %path.display(), "No index.html found in web archive entry, skipping");
+                continue;
+            }
+            items.push(index_path);
+        }
+
+        items
     }
 
     fn indexable(config: &crate::config::Config, mime_type: &mime_type::MimeType) -> Vec<PathBuf> {

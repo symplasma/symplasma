@@ -155,16 +155,16 @@ fn handle_list_dirs(config: &Config, source: Source) {
         Source::Projects => todo!(),
         Source::Repos => todo!(),
         Source::Markdown => todo!(),
-        Source::WebArchives => todo!(),
+        Source::WebArchives => WebArchive::dirs(config),
         Source::Pictures => todo!(),
         Source::Videos => todo!(),
         Source::Music => todo!(),
         Source::Audio => todo!(),
     };
     debug!(?source, "Found directories");
-    // for item in items {
-    //     println!("{}", item.display());
-    // }
+    for item in items {
+        println!("{}", item.display());
+    }
 }
 
 fn handle_list_items(config: &Config, source: Source) {
