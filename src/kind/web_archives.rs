@@ -215,7 +215,7 @@ impl WebArchive {
 impl Display for WebArchive {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Delegate to the PathBuf's display implementation
-        write!(f, "{}", self.source)
+        write!(f, "{} {}", self.title().unwrap_or("NO TITLE"), self.source)
     }
 }
 
