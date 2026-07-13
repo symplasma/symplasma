@@ -18,26 +18,53 @@ pub(crate) enum Commands {
         #[command(subcommand)]
         what: ConfigCommands,
     },
-    /// List sources or items from a source
-    List {
+    /// List all possible data sources
+    Sources,
+    /// Circles source commands
+    Circles {
         #[command(subcommand)]
-        what: ListCommands,
+        what: SourceCommands,
     },
-    /// Find the path to a file
-    Find {
-        /// Optional source type to scope the search
-        #[arg(short, long)]
-        source: Option<Source>,
-        /// The file name to find
-        file_name: String,
+    /// Projects source commands
+    Projects {
+        #[command(subcommand)]
+        what: SourceCommands,
     },
-    /// Find the path to a file, or create it if it doesn't exist
-    FindOrCreate {
-        /// Optional source type to scope the search
-        #[arg(short, long)]
-        source: Option<Source>,
-        /// The file name to find or create
-        file_name: String,
+    /// Repos source commands
+    Repos {
+        #[command(subcommand)]
+        what: SourceCommands,
+    },
+    /// Markdown source commands
+    Markdown {
+        #[command(subcommand)]
+        what: SourceCommands,
+    },
+    /// Web archives source commands
+    #[command(alias = "web-scrap-book-archives")]
+    WebArchives {
+        #[command(subcommand)]
+        what: SourceCommands,
+    },
+    /// Pictures source commands
+    Pictures {
+        #[command(subcommand)]
+        what: SourceCommands,
+    },
+    /// Videos source commands
+    Videos {
+        #[command(subcommand)]
+        what: SourceCommands,
+    },
+    /// Music source commands
+    Music {
+        #[command(subcommand)]
+        what: SourceCommands,
+    },
+    /// Audio source commands
+    Audio {
+        #[command(subcommand)]
+        what: SourceCommands,
     },
 }
 
@@ -50,17 +77,17 @@ pub(crate) enum ConfigCommands {
 }
 
 #[derive(Subcommand)]
-pub(crate) enum ListCommands {
-    /// List all possible data sources
-    Sources,
-    /// List all files from a specific source
-    Files {
-        /// The source type to list items from
-        source: Source,
+pub(crate) enum SourceCommands {
+    /// List all files from this source
+    List,
+    /// Find the path to a file
+    Find {
+        /// The file name to find
+        file_name: String,
     },
-    /// List all items from a specific source
-    Items {
-        /// The source type to list items from
-        source: Source,
+    /// Find the path to a file, or create it if it doesn't exist
+    FindOrCreate {
+        /// The file name to find or create
+        file_name: String,
     },
 }

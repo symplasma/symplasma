@@ -6,9 +6,9 @@ use clap::Parser;
 use strum::IntoEnumIterator as _;
 use symplasma::config::Config;
 use symplasma::sources::Source;
-use symplasma::{find, find_or_create, list_files, list_items};
+use symplasma::{find, find_or_create, list_files};
 
-use crate::options::{Cli, Commands, ConfigCommands, ListCommands};
+use crate::options::{Cli, Commands, ConfigCommands, SourceCommands};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
@@ -24,22 +24,35 @@ fn main() -> Result<(), Box<dyn Error>> {
                 handle_config_create_default();
             }
         },
-        Commands::List { what } => match what {
-            ListCommands::Sources => {
-                handle_list_sources();
-            }
-            ListCommands::Files { source } => {
-                handle_list_files(&config, source);
-            }
-            ListCommands::Items { source } => {
-                handle_list_items(source);
-            }
-        },
-        Commands::Find { source, file_name } => {
-            handle_find(source, &file_name);
+        Commands::Sources => {
+            handle_list_sources();
         }
-        Commands::FindOrCreate { source, file_name } => {
-            handle_find_or_create(source, &file_name);
+        Commands::Circles { what } => {
+            handle_source_command(&config, Source::Circles, what);
+        }
+        Commands::Projects { what } => {
+            handle_source_command(&config, Source::Projects, what);
+        }
+        Commands::Repos { what } => {
+            handle_source_command(&config, Source::Repos, what);
+        }
+        Commands::Markdown { what } => {
+            handle_source_command(&config, Source::Markdown, what);
+        }
+        Commands::WebArchives { what } => {
+            handle_source_command(&config, Source::WebScrapBookArchive, what);
+        }
+        Commands::Pictures { what } => {
+            handle_source_command(&config, Source::Pictures, what);
+        }
+        Commands::Videos { what } => {
+            handle_source_command(&config, Source::Videos, what);
+        }
+        Commands::Music { what } => {
+            handle_source_command(&config, Source::Music, what);
+        }
+        Commands::Audio { what } => {
+            handle_source_command(&config, Source::Audio, what);
         }
     }
 
@@ -84,15 +97,18 @@ fn handle_list_sources() {
     }
 }
 
-fn handle_list_files(config: &Config, source: Source) {
-    let items = list_files(config, source);
-    for item in items {
-        println!("{}", item.display());
+fn handle_source_command(config: &Config, source: Source, what: SourceCommands) {
+    match what {
+        SourceCommands::List => handle_list_files(config, source),
+        SourceCommands::Find { file_name } => handle_find(Some(source), &file_name),
+        SourceCommands::FindOrCreate { file_name } => {
+            handle_find_or_create(Some(source), &file_name)
+        }
     }
 }
 
-fn handle_list_items(source: Source) {
-    let items = list_items(source);
+fn handle_list_files(config: &Config, source: Source) {
+    let items = list_files(config, source);
     for item in items {
         println!("{}", item.display());
     }
