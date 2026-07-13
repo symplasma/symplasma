@@ -12,6 +12,30 @@ impl Markdown {
             path: path.to_path_buf(),
         }
     }
+
+    pub fn dirs(config: &Config) -> Vec<PathBuf> {
+        let mut dirs = Vec::new();
+
+        for base_path in &config.markdown {
+            let expanded = expand_tilde(base_path);
+            debug!(base_path = %base_path.display(), expanded = %expanded.display(), "Scanning for markdown directories");
+
+            let walker = ignore::WalkBuilder::new(&expanded)
+                .follow_links(true)
+                .build()
+                .filter_map(|e| e.ok())
+                .filter(|e| e.file_type().map(|ft| ft.is_dir()).unwrap_or(false));
+
+            for entry in walker {
+                let path = entry.path();
+                trace!(path = %path.display(), "Found markdown directory");
+                dirs.push(path.to_path_buf());
+            }
+        }
+
+        debug!(count = dirs.len(), "Finished scanning for markdown directories");
+        dirs
+    }
 }
 
 fn is_markdown_extension(path: &Path) -> bool {
