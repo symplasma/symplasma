@@ -7,7 +7,7 @@ use strum::IntoEnumIterator as _;
 use symplasma::config::Config;
 use symplasma::kind::markdown::Markdown;
 use symplasma::kind::traits::Kind as _;
-use symplasma::kind::web_scrap_book_archive::WebScrapBookArchive;
+use symplasma::kind::web_archives::WebArchives;
 use symplasma::sources::Source;
 use symplasma::{find, find_or_create};
 
@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             handle_source_command(&config, Source::Markdown, what);
         }
         Commands::WebArchives { what } => {
-            handle_source_command(&config, Source::WebScrapBookArchive, what);
+            handle_source_command(&config, Source::WebArchives, what);
         }
         Commands::Pictures { what } => {
             handle_source_command(&config, Source::Pictures, what);
@@ -116,7 +116,7 @@ fn handle_list_files(config: &Config, source: Source) {
         Source::Projects => todo!(),
         Source::Repos => todo!(),
         Source::Markdown => Markdown::files(config),
-        Source::WebScrapBookArchive => WebScrapBookArchive::files(config),
+        Source::WebArchives => WebArchives::files(config),
         Source::Pictures => todo!(),
         Source::Videos => todo!(),
         Source::Music => todo!(),

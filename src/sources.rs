@@ -15,7 +15,7 @@ pub enum Source {
     /// Individual markdown files (mostly notes).
     Markdown,
     /// Individual web page archive directories from WebScrapBook. (We might support single file formats later.)
-    WebScrapBookArchive,
+    WebArchives,
     /// Individual picture files.
     Pictures,
     /// Individual video files.
